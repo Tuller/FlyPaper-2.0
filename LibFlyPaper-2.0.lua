@@ -55,12 +55,28 @@ local ANCHOR_POINTS = {
 	CENTER = { },
 	LEFT = { 'RIGHT' },
     BOTTOM = { 'BOTTOM' },
-    BOTTOMLEFT = { 'BOTTOMRIGHT' },
+    BOTTOMLEFT = { 'BOTTOMRIGHT', 'BOTTOM', 'TOPLEFT', 'TOP' },
     BOTTOMRIGHT = { 'BOTTOMLEFT' },
     RIGHT = { 'LEFT' },
     TOP = { 'BOTTOM' },
     TOPLEFT = { 'TOPRIGHT' },
     TOPRIGHT = { 'TOPLEFT' },
+}
+
+-- old anchor ids
+local LEGACY_ANCHOR_IDS = {
+	TL = { 'BOTTOMLEFT', 'TOPLEFT'},
+	TC = { 'TOP', 'BOTTOM' },
+	TR = { 'BOTTOMRIGHT', 'TOPRIGHT' },
+	BL = { 'TOPLEFT', 'BOTTOMLEFT' },
+	BC = { 'TOPLEFT', 'BOTTOM' },
+	BR = { 'TOPRIGHT', 'BOTTOMRIGHT'},
+	LB = { 'BOTTOMRIGHT', 'BOTTOMLEFT' },
+	LC = { 'RIGHT', 'LEFT' },
+	LT = { 'TOPRIGHT', 'TOPLEFT' },
+	RB = { 'BOTTOMLEFT', 'BOTTOMRIGHT' },
+	RC = { 'LEFT', 'RIGHT' },
+	RT = { 'TOPLEFT', 'TOPRIGHT' },
 }
 
 -- what points we'll anchor to on the frame's parent
@@ -670,5 +686,14 @@ function FlyPaper.GetNearestPointToCursor(frame, tolerance, xOff, yOff)
 		local scale = frame:GetEffectiveScale() / relFrame:GetEffectiveScale()
 
 		return bestPoint, relFrame, relPoint, bestX / scale, bestY / scale, bestDistance
+	end
+end
+
+function FlyPaper.ConvertAnchorId(anchorId)
+	if not anchorId then return end
+
+	local info = LEGACY_ANCHOR_IDS[anchorId]
+	if info then
+		return unpack(info)
 	end
 end
