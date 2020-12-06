@@ -1,6 +1,6 @@
 # FlyPaper
 
-A library for sticking frames together
+A library for finding the closest points between regions, usually for anchoring
 
 ## Examples
 
