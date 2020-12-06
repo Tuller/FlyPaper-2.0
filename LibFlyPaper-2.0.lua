@@ -496,7 +496,40 @@ end
 -- best anchor - within parent grid
 --------------------------------------------------------------------------------
 
-function FlyPaper.GetBestAnchorToParentGridPoint(frame, xScale, yScale, tolerance, xOff, yOff)
+function FlyPaper.GetBestAnchorForParentGrid(frame, xScale, yScale, tolerance, xOff, yOff)
+	if not frame then
+		return
+	end
+
+	local parent = frame:GetPoint()
+	if not parent then
+		return
+	end
+
+    -- get the grid size
+    local bestDistance = math.huge
+    local bestPoint, bestRelPoint, bestX, bestY
+
+    -- iterate through all frame points
+	for _, point in ipairs(POINTS) do
+		local relPoint, x, y, distance = FlyPaper.GetBestAnchorToPointForParentGrid(point, xScale, yScale, tolerance, xOff, yOff)
+
+        -- keep it if its better
+        if distance and distance < bestDistance then
+            bestDistance = distance
+			bestPoint = point
+			bestRelPoint = relPoint
+            bestX = x
+            bestY = y
+        end
+    end
+
+    if bestDistance <= tolerance then
+        return bestPoint, bestRelPoint, bestX, bestY, bestDistance
+    end
+end
+
+function FlyPaper.GetBestAnchorToPointForParentGrid(frame, point, xScale, yScale, tolerance, xOff, yOff)
 	if not frame then
 		return
 	end
@@ -520,30 +553,20 @@ function FlyPaper.GetBestAnchorToParentGridPoint(frame, xScale, yScale, toleranc
     local gridCellHeight = rh / yScale
 
     local bestDistance = math.huge
-    local bestPoint, bestX, bestY
 
     -- iterate through all frame points
-    for _, point in ipairs(POINTS) do
-        -- get the coordinates for that frame point
-        local fx, fy = COORDS[point](fl, fb, fw, fh)
+	-- get the coordinates for that frame point
+	local fx, fy = COORDS[point](fl, fb, fw, fh)
 
-        -- find the nearest vertex on the grid
-        local nearestX = GetNearestMultiple(fx, gridCellWidth)
-        local nearestY = GetNearestMultiple(fy, gridCellHeight)
-        local distance = GetDistance(fx, fy, nearestX, nearestY)
+	-- find the nearest vertex on the grid
+	local nearestX = GetNearestMultiple(fx, gridCellWidth)
+	local nearestY = GetNearestMultiple(fy, gridCellHeight)
+	local distance = GetDistance(fx, fy, nearestX, nearestY)
 
-        -- keep it if its better
-        if distance < bestDistance then
-            bestDistance = distance
-            bestPoint = point
-            bestX = nearestX
-            bestY = nearestY
-        end
-    end
-
-    if bestDistance <= tolerance then
-        return bestPoint, 'BOTTOMLEFT', bestX / scale, bestY / scale, bestDistance
-    end
+	-- keep it if its better
+	if distance <= tolerance then
+		return 'BOTTOMLEFT', nearestX / scale, nearestY / scale, bestDistance
+	end
 end
 
 --------------------------------------------------------------------------------
