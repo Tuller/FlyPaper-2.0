@@ -55,28 +55,12 @@ local ANCHOR_POINTS = {
 	CENTER = { },
 	LEFT = { 'RIGHT' },
     BOTTOM = { 'BOTTOM' },
-    BOTTOMLEFT = { 'BOTTOMRIGHT', 'BOTTOM', 'TOPLEFT', 'TOP' },
-    BOTTOMRIGHT = { 'BOTTOMLEFT' },
+    BOTTOMLEFT = { 'BOTTOMRIGHT', 'RIGHT', 'TOPLEFT', 'TOP' },
+    BOTTOMRIGHT = { 'BOTTOMLEFT', 'LEFT', 'TOPRIGHT', 'TOP' },
     RIGHT = { 'LEFT' },
     TOP = { 'BOTTOM' },
-    TOPLEFT = { 'TOPRIGHT' },
-    TOPRIGHT = { 'TOPLEFT' },
-}
-
--- old anchor ids
-local LEGACY_ANCHOR_IDS = {
-	TL = { 'BOTTOMLEFT', 'TOPLEFT'},
-	TC = { 'TOP', 'BOTTOM' },
-	TR = { 'BOTTOMRIGHT', 'TOPRIGHT' },
-	BL = { 'TOPLEFT', 'BOTTOMLEFT' },
-	BC = { 'TOPLEFT', 'BOTTOM' },
-	BR = { 'TOPRIGHT', 'BOTTOMRIGHT'},
-	LB = { 'BOTTOMRIGHT', 'BOTTOMLEFT' },
-	LC = { 'RIGHT', 'LEFT' },
-	LT = { 'TOPRIGHT', 'TOPLEFT' },
-	RB = { 'BOTTOMLEFT', 'BOTTOMRIGHT' },
-	RC = { 'LEFT', 'RIGHT' },
-	RT = { 'TOPLEFT', 'TOPRIGHT' },
+    TOPLEFT = { 'TOPRIGHT', 'RIGHT', 'BOTTOMLEFT', 'BOTTOM' },
+    TOPRIGHT = { 'TOPLEFT', 'LEFT', 'BOTTOMRIGHT', 'BOTTOM' },
 }
 
 -- what points we'll anchor to on the frame's parent
@@ -90,6 +74,22 @@ local PARENT_ANCHOR_POINTS = {
 	TOP = { 'TOP' },
 	TOPLEFT = { 'TOPLEFT' },
 	TOPRIGHT = { 'TOPRIGHT' },
+}
+
+-- old anchor ids
+local LEGACY_ANCHOR_IDS = {
+	BC = {'TOP', 'BOTTOM'},
+	BL = {'TOPLEFT', 'BOTTOMLEFT'},
+	BR = {'TOPRIGHT', 'BOTTOMRIGHT'},
+	LB = {'BOTTOMRIGHT', 'BOTTOMLEFT'},
+	LC = {'RIGHT', 'LEFT'},
+	LT = {'TOPRIGHT', 'TOPLEFT'},
+	RB = {'BOTTOMLEFT', 'BOTTOMRIGHT'},
+	RC = {'LEFT', 'RIGHT'},
+	RT = {'TOPLEFT', 'TOPRIGHT'},
+	TC = {'BOTTOM', 'TOP'},
+	TL = {'BOTTOMLEFT', 'TOPLEFT'},
+	TR = {'BOTTOMRIGHT', 'TOPRIGHT'},
 }
 
 -- gets the scaled rect values for frame
