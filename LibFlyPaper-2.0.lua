@@ -100,10 +100,10 @@ local function GetScaledRect(frame, xOff, yOff)
 
 	local l, b, w, h = frame:GetRect()
 
-	l = l - xOff
-	b = b - yOff
-	w = w + xOff
-	h = h + yOff
+	l = (l or 0) - xOff
+	b = (b or 0) - yOff
+	w = (w or 0) + xOff
+	h = (h or 0) + yOff
 
 	local s = frame:GetEffectiveScale()
 
