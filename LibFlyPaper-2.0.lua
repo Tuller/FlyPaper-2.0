@@ -24,7 +24,7 @@
 local FlyPaper = LibStub:NewLibrary('LibFlyPaper-2.0', 0)
 if not FlyPaper then return end
 
--- sorted in evaluation orders
+-- sorted in evaluation order
 local POINTS = {
 	'TOPLEFT',
 	'TOP',
@@ -39,41 +39,41 @@ local POINTS = {
 
 -- translates anchor points into x/y coordinates (bottom left, relative to screen)
 local COORDS = {
-	TOPLEFT = function(l, b, w, h) return l, b + h end,
-	TOP = function(l, b, w, h) return l + w/2, b + h end,
-	TOPRIGHT = function(l, b, w, h) return l + w, b + h end,
-	RIGHT = function(l, b, w, h) return l + w, b + h/2 end,
-	BOTTOMRIGHT = function(l, b, w, h) return l + w, b end,
 	BOTTOM = function(l, b, w, h) return l + w/2, b end,
 	BOTTOMLEFT = function(l, b, w, h) return l, b end,
-	LEFT = function(l, b, w, h) return l, b + h/2 end,
+	BOTTOMRIGHT = function(l, b, w, h) return l + w, b end,
 	CENTER = function(l, b, w, h) return l + w/2, b + h/2 end,
+	LEFT = function(l, b, w, h) return l, b + h/2 end,
+	RIGHT = function(l, b, w, h) return l + w, b + h/2 end,
+	TOP = function(l, b, w, h) return l + w/2, b + h end,
+	TOPLEFT = function(l, b, w, h) return l, b + h end,
+	TOPRIGHT = function(l, b, w, h) return l + w, b + h end,
 }
 
 -- what points we'll anchor to on other frames
 local ANCHOR_POINTS = {
+	BOTTOM = { 'TOP' },
+	BOTTOMLEFT = { 'BOTTOMRIGHT', 'RIGHT', 'TOPLEFT', 'TOP' },
+	BOTTOMRIGHT = { 'BOTTOMLEFT', 'LEFT', 'TOPRIGHT', 'TOP' },
 	CENTER = { },
 	LEFT = { 'RIGHT' },
-    BOTTOM = { 'BOTTOM' },
-    BOTTOMLEFT = { 'BOTTOMRIGHT', 'RIGHT', 'TOPLEFT', 'TOP' },
-    BOTTOMRIGHT = { 'BOTTOMLEFT', 'LEFT', 'TOPRIGHT', 'TOP' },
-    RIGHT = { 'LEFT' },
-    TOP = { 'BOTTOM' },
-    TOPLEFT = { 'TOPRIGHT', 'RIGHT', 'BOTTOMLEFT', 'BOTTOM' },
-    TOPRIGHT = { 'TOPLEFT', 'LEFT', 'BOTTOMRIGHT', 'BOTTOM' },
+	RIGHT = { 'LEFT' },
+	TOP = { 'BOTTOM' },
+	TOPLEFT = { 'TOPRIGHT', 'RIGHT', 'BOTTOMLEFT', 'BOTTOM' },
+	TOPRIGHT = { 'TOPLEFT', 'LEFT', 'BOTTOMRIGHT', 'BOTTOM' },
 }
 
 -- what points we'll anchor to on the frame's parent
 local PARENT_ANCHOR_POINTS = {
+	BOTTOM = { 'BOTTOM', 'CENTER' },
+	BOTTOMLEFT = { 'BOTTOMLEFT', 'BOTTOM', 'LEFT', 'CENTER' },
+	BOTTOMRIGHT = { 'BOTTOMRIGHT', 'BOTTOM', 'RIGHT', 'CENTER' },
 	CENTER = { 'CENTER' },
-	LEFT = { 'LEFT' },
-	BOTTOM = { 'BOTTOM' },
-	BOTTOMLEFT = { 'BOTTOMLEFT' },
-	BOTTOMRIGHT = { 'BOTTOMRIGHT' },
-	RIGHT = { 'RIGHT' },
-	TOP = { 'TOP' },
-	TOPLEFT = { 'TOPLEFT' },
-	TOPRIGHT = { 'TOPRIGHT' },
+	LEFT = { 'LEFT', 'CENTER' },
+	RIGHT = { 'RIGHT', 'CENTER' },
+	TOP = { 'TOP', 'CENTER' },
+	TOPLEFT = { 'TOPLEFT', 'TOP', 'LEFT', 'CENTER' },
+	TOPRIGHT = { 'TOPRIGHT', 'TOP', 'RIGHT', 'CENTER' },
 }
 
 -- old anchor ids
@@ -158,7 +158,7 @@ local function GetBestAnchorToPointForFrame(frame, point, relFrame, anchors, xOf
 	end
 
 	local bestDistance = math.huge
-	local bestRelPoint
+	local bestRelPoint, bestX, bestY
 
 	local fl, fb, fw, fh = GetRelativeRect(frame, relFrame, xOff, yOff)
 	local rl, rb, rw, rh = relFrame:GetRect()
@@ -171,11 +171,12 @@ local function GetBestAnchorToPointForFrame(frame, point, relFrame, anchors, xOf
 		if distance < bestDistance then
 			bestDistance = distance
 			bestRelPoint = relPoint
+			bestX = fx - rx
+			bestY = fy - ry
 		end
 	end
 
 	if bestRelPoint then
-		local bestX, bestY = COORDS[bestRelPoint](-xOff, -yOff, xOff, yOff)
 		local scale = frame:GetEffectiveScale() / relFrame:GetEffectiveScale()
 
 		return bestRelPoint, bestX / scale, bestY / scale, bestDistance
@@ -205,7 +206,7 @@ local function GetBestAnchorForFrame(frame, relFrame, anchors, xOff, yOff)
 		end
 	end
 
-	return bestRelPoint, bestX, bestY, bestDistance
+	return bestPoint, bestRelPoint, bestX, bestY, bestDistance
 end
 
 local function GetBestAnchorToPointForFrames(frame, point, relFrames, anchors, xOff, yOff)
@@ -466,7 +467,7 @@ function FlyPaper.GetBestAnchorForParent(frame, tolerance, xOff, yOff)
 
 	local point, relPoint, x, y, distance = GetBestAnchorForFrame(frame, parent, PARENT_ANCHOR_POINTS, xOff, yOff)
 
-	if point and distance <= tolerance then
+	if distance and distance <= tolerance then
 		return point, relPoint, x, y, distance
 	end
 end
@@ -487,7 +488,7 @@ function FlyPaper.GetBestAnchorToPointForParent(frame, point, tolerance, xOff, y
 	yOff = tonumber(yOff) or 0
 
 	local relPoint, x, y, distance = GetBestAnchorToPointForFrame(frame, point, parent, PARENT_ANCHOR_POINTS, xOff, yOff)
-	if relPoint and distance <= tolerance then
+	if distance and distance <= tolerance then
 		return relPoint, x, y, distance
 	end
 end
@@ -501,7 +502,7 @@ function FlyPaper.GetBestAnchorForParentGrid(frame, xScale, yScale, tolerance, x
 		return
 	end
 
-	local parent = frame:GetPoint()
+	local parent = frame:GetParent()
 	if not parent then
 		return
 	end
@@ -512,7 +513,7 @@ function FlyPaper.GetBestAnchorForParentGrid(frame, xScale, yScale, tolerance, x
 
     -- iterate through all frame points
 	for _, point in ipairs(POINTS) do
-		local relPoint, x, y, distance = FlyPaper.GetBestAnchorToPointForParentGrid(point, xScale, yScale, tolerance, xOff, yOff)
+		local relPoint, x, y, distance = FlyPaper.GetBestAnchorToPointForParentGrid(frame, point, xScale, yScale, tolerance, xOff, yOff)
 
         -- keep it if its better
         if distance and distance < bestDistance then
@@ -534,7 +535,7 @@ function FlyPaper.GetBestAnchorToPointForParentGrid(frame, point, xScale, yScale
 		return
 	end
 
-	local parent = frame:GetPoint()
+	local parent = frame:GetParent()
 	if not parent then
 		return
 	end
@@ -545,27 +546,19 @@ function FlyPaper.GetBestAnchorToPointForParentGrid(frame, point, xScale, yScale
 	xOff = tonumber(xOff) or 0
 	yOff = tonumber(yOff) or 0
 
-    -- get the grid size
-    local fl, fb, fw, fh = GetRelativeRect(frame, parent)
-    local rw, rh = parent:GetSize()
-    local scale = frame:GetEffectiveScale() / parent:GetEffectiveScale()
-    local gridCellWidth = rw / xScale
-    local gridCellHeight = rh / yScale
+	-- get the coordinates for the frame point
+	local fx, fy = COORDS[point](GetRelativeRect(frame, parent, xOff, yOff))
 
-    local bestDistance = math.huge
+	-- get the nearest vertex on the grid
+	local x = GetNearestMultiple(fx, parent:GetWidth() / xScale)
+	local y = GetNearestMultiple(fy, parent:GetHeight() / yScale)
 
-    -- iterate through all frame points
-	-- get the coordinates for that frame point
-	local fx, fy = COORDS[point](fl, fb, fw, fh)
-
-	-- find the nearest vertex on the grid
-	local nearestX = GetNearestMultiple(fx, gridCellWidth)
-	local nearestY = GetNearestMultiple(fy, gridCellHeight)
-	local distance = GetDistance(fx, fy, nearestX, nearestY)
-
-	-- keep it if its better
+	-- return it if its within the limit
+	local distance = GetDistance(fx, fy, x, y)
 	if distance <= tolerance then
-		return 'BOTTOMLEFT', nearestX / scale, nearestY / scale, bestDistance
+		local scale = frame:GetScale()
+
+		return 'BOTTOMLEFT', x / scale, y / scale, distance
 	end
 end
 
