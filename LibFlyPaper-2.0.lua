@@ -530,7 +530,9 @@ function FlyPaper.GetBestAnchorForParentGrid(frame, xScale, yScale, tolerance, x
     end
 end
 
-function FlyPaper.GetBestAnchorToPointForParentGrid(frame, point, xScale, yScale, tolerance, xOff, yOff)
+unction FlyPaper.GetBestAnchorToPointForParentGrid(frame, point, xScale, yScale, tolerance, xOff, yOff)
+	--due to changes in Dominos_Config\overlay\ui.lua to
+	--function "DrawGrid", grid snapping must now be based off screen center.
 	if not frame then
 		return
 	end
@@ -548,10 +550,10 @@ function FlyPaper.GetBestAnchorToPointForParentGrid(frame, point, xScale, yScale
 
 	-- get the coordinates for the frame point
 	local fx, fy = COORDS[point](GetRelativeRect(frame, parent, xOff, yOff))
+	local cX, cY = parent:GetWidth()/2, parent:GetHeight()/2
 
-	-- get the nearest vertex on the grid
-	local x = GetNearestMultiple(fx, parent:GetWidth() / xScale)
-	local y = GetNearestMultiple(fy, parent:GetHeight() / yScale)
+	local x = (GetNearestMultiple(fx - cX, xScale)) + cX --nearest vertex, based off screen center.
+	local y = (GetNearestMultiple(fy - cY, yScale)) + cY
 
 	-- return it if its within the limit
 	local distance = GetDistance(fx, fy, x, y)
