@@ -21,7 +21,7 @@
 -- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 -- THE SOFTWARE.
 
-local FlyPaper = LibStub:NewLibrary('LibFlyPaper-2.0', 0)
+local FlyPaper = LibStub:NewLibrary('LibFlyPaper-2.0', 2)
 if not FlyPaper then return end
 
 -- sorted in evaluation order
@@ -530,7 +530,7 @@ function FlyPaper.GetBestAnchorForParentGrid(frame, xScale, yScale, tolerance, x
     end
 end
 
-unction FlyPaper.GetBestAnchorToPointForParentGrid(frame, point, xScale, yScale, tolerance, xOff, yOff)
+function FlyPaper.GetBestAnchorToPointForParentGrid(frame, point, xScale, yScale, tolerance, xOff, yOff)
 	--due to changes in Dominos_Config\overlay\ui.lua to
 	--function "DrawGrid", grid snapping must now be based off screen center.
 	if not frame then
